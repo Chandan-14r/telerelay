@@ -9,7 +9,7 @@ import sys
 import socket
 import asyncio
 import threading
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_file
 from telethon import TelegramClient
 from telethon.tl.types import (
     MessageMediaPhoto,
@@ -313,6 +313,42 @@ def forward():
         return jsonify({"success": True, "count": count})
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
+
+
+async def _get_single_media_buffer(chat_id, message_id):
+    entity = await client.get_entity(int(chat_id))
+    msg = await client.get_messages(entity, ids=int(message_id))
+    if not msg or not msg.media:
+        return None, None
+
+    filename = get_filename_for_message(msg)
+    buffer = io.BytesIO()
+    buffer.name = filename
+    await client.download_media(msg, file=buffer)
+    buffer.seek(0)
+    return buffer, filename
+
+
+@app.route('/api/download')
+def download():
+    chat_id = request.args.get('chat_id')
+    message_id = request.args.get('message_id')
+    if not chat_id or not message_id:
+        return "Missing chat_id or message_id", 400
+
+    try:
+        buf, filename = run_async(_get_single_media_buffer(chat_id, message_id))
+        if not buf:
+            return "Media not found", 404
+
+        return send_file(
+            buf,
+            as_attachment=True,
+            download_name=filename,
+            mimetype="application/octet-stream"
+        )
+    except Exception as e:
+        return f"Download error: {e}", 500
 
 
 if __name__ == '__main__':

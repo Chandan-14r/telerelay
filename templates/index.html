@@ -388,20 +388,44 @@
       font-size: 0.68rem;
     }
 
+    .card-action-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
     .btn-quick-send {
       background: var(--tg-gradient);
       color: white;
       border: none;
-      padding: 8px 12px;
-      border-radius: 10px;
-      font-size: 0.78rem;
+      padding: 7px 11px;
+      border-radius: 9px;
+      font-size: 0.76rem;
       font-weight: 700;
       cursor: pointer;
       box-shadow: 0 4px 12px rgba(42, 171, 238, 0.3);
-      flex-shrink: 0;
       transition: transform 0.15s ease;
     }
     .btn-quick-send:active { transform: scale(0.94); }
+
+    .btn-quick-download {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--surface-border);
+      color: #38bdf8;
+      padding: 7px 10px;
+      border-radius: 9px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-quick-download:active {
+      transform: scale(0.94);
+      background: rgba(56, 189, 248, 0.2);
+    }
 
     /* Floating Dock at Bottom (Mobile Native UX) */
     .floating-dock {
@@ -949,9 +973,9 @@
       card.className = 'media-card';
       card.id = `msg-card-${m.id}`;
 
-      // Tap whole card to toggle selection
+      // Tap whole card to toggle selection (ignore if clicking buttons)
       card.onclick = (e) => {
-        if (e.target.closest('.btn-quick-send')) return;
+        if (e.target.closest('.card-action-group')) return;
         toggleCardSelection(m.id);
       };
 
@@ -968,7 +992,14 @@
             <span>${m.date}</span>
           </div>
         </div>
-        <button class="btn-quick-send" onclick="sendSingleMedia(${m.id})">Send</button>
+        <div class="card-action-group">
+          <button class="btn-quick-download" title="Save file to phone/computer" onclick="downloadSingleMedia(${m.id})">
+            <span>📥 Save</span>
+          </button>
+          <button class="btn-quick-send" title="Stream to Telegram Saved Messages" onclick="sendSingleMedia(${m.id})">
+            <span>⚡ Send</span>
+          </button>
+        </div>
       `;
       container.appendChild(card);
     }
@@ -1028,6 +1059,19 @@
 
     function hideToast() {
       document.getElementById('app-toast').style.display = 'none';
+    }
+
+    function downloadSingleMedia(id) {
+      if (!activeChat) return;
+      showToast(`Downloading file ${id} to your device...`, false);
+      // Trigger native browser download directly via the streaming endpoint
+      const downloadUrl = `/api/download?chat_id=${activeChat.id}&message_id=${id}`;
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.setAttribute('download', '');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
     }
 
     async function sendSingleMedia(id) {
