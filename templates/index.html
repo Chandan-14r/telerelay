@@ -687,11 +687,117 @@
       background: var(--surface-hover);
       transform: scale(0.98);
     }
+
+    /* Lockscreen Security Modal */
+    .lockscreen-overlay {
+      position: fixed;
+      inset: 0;
+      background: #090d16;
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+    }
+    .lock-card {
+      background: rgba(19, 25, 36, 0.95);
+      border: 1px solid var(--surface-border);
+      border-radius: 24px;
+      width: 100%;
+      max-width: 380px;
+      padding: 32px 24px;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(42, 171, 238, 0.2);
+      animation: lockPop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes lockPop {
+      from { transform: scale(0.92); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .lock-icon-circle {
+      width: 64px;
+      height: 64px;
+      border-radius: 20px;
+      background: var(--tg-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      margin: 0 auto 18px;
+      box-shadow: 0 6px 20px rgba(42, 171, 238, 0.35);
+    }
+    .lock-heading {
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .lock-desc {
+      font-size: 0.82rem;
+      color: var(--text-sub);
+      margin-top: 6px;
+      margin-bottom: 22px;
+    }
+    .pin-input {
+      width: 100%;
+      background: #0b0e14;
+      border: 2px solid var(--surface-border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      color: var(--text);
+      font-size: 1.3rem;
+      text-align: center;
+      letter-spacing: 0.25em;
+      outline: none;
+      font-family: inherit;
+      transition: all 0.2s ease;
+      margin-bottom: 16px;
+    }
+    .pin-input:focus {
+      border-color: var(--tg-blue);
+      box-shadow: 0 0 20px rgba(42, 171, 238, 0.3);
+    }
+    .lock-btn {
+      width: 100%;
+      background: var(--tg-gradient);
+      color: white;
+      border: none;
+      padding: 14px;
+      border-radius: 14px;
+      font-weight: 800;
+      font-size: 0.95rem;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(42, 171, 238, 0.35);
+      transition: transform 0.15s ease;
+    }
+    .lock-btn:active { transform: scale(0.97); }
+    .lock-error {
+      color: var(--danger, #ef4444);
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-top: 12px;
+      display: none;
+    }
   </style>
 </head>
 <body>
 
   <div class="ambient-mesh"></div>
+
+  <!-- Security Lockscreen Modal -->
+  <div class="lockscreen-overlay" id="lockscreen-overlay" style="display: none;">
+    <div class="lock-card">
+      <div class="lock-icon-circle">🔒</div>
+      <div class="lock-heading">Security Passcode</div>
+      <div class="lock-desc">Enter your master passcode to access your Telegram chats.</div>
+      <form onsubmit="handleLogin(event)">
+        <input type="password" id="pin-input" class="pin-input" placeholder="••••" maxlength="32" autofocus autocomplete="current-password">
+        <button type="submit" class="lock-btn">Unlock TeleRelay</button>
+        <div class="lock-error" id="lock-error-msg">Incorrect passcode. Try again.</div>
+      </form>
+    </div>
+  </div>
 
   <!-- Top Header -->
   <header class="app-header">
@@ -699,9 +805,14 @@
       <div class="brand-icon">⚡</div>
       <span class="brand-title">TeleRelay</span>
     </div>
-    <div class="header-status">
-      <div class="status-dot"></div>
-      <span id="user-status-text">Connected</span>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <div class="header-status">
+        <div class="status-dot"></div>
+        <span id="user-status-text">Connected</span>
+      </div>
+      <button onclick="handleLogout()" title="Lock App" style="background:rgba(255,255,255,0.06); border:1px solid var(--surface-border); color:var(--text-sub); border-radius:10px; width:34px; height:34px; display:flex; align-items:center; justify-content:center; cursor:pointer;">
+        🔒
+      </button>
     </div>
   </header>
 
@@ -806,9 +917,27 @@
     }
 
     async function init() {
+      // 1. Check if authentication passcode is needed
+      try {
+        const authRes = await fetch('/api/auth/check');
+        const authData = await authRes.json();
+        if (!authData.authenticated) {
+          showLockscreen();
+          return;
+        }
+      } catch (err) {
+        showLockscreen();
+        return;
+      }
+
+      // 2. Load Telegram connection status and chats
       try {
         const res = await fetch('/api/status');
         const data = await res.json();
+        if (data.locked) {
+          showLockscreen();
+          return;
+        }
         if (data.user) {
           document.getElementById('user-status-text').innerText = data.user;
         }
@@ -816,6 +945,54 @@
       } catch (e) {
         document.getElementById('user-status-text').innerText = 'Offline';
       }
+    }
+
+    function showLockscreen() {
+      document.getElementById('lockscreen-overlay').style.display = 'flex';
+      setTimeout(() => document.getElementById('pin-input').focus(), 150);
+    }
+
+    function hideLockscreen() {
+      document.getElementById('lockscreen-overlay').style.display = 'none';
+      document.getElementById('lock-error-msg').style.display = 'none';
+      document.getElementById('pin-input').value = '';
+    }
+
+    async function handleLogin(e) {
+      if (e) e.preventDefault();
+      const pwd = document.getElementById('pin-input').value.trim();
+      const errEl = document.getElementById('lock-error-msg');
+      errEl.style.display = 'none';
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({password: pwd})
+        });
+        const data = await res.json();
+        if (data.success) {
+          hideLockscreen();
+          // Load app data
+          const statusRes = await fetch('/api/status');
+          const statusData = await statusRes.json();
+          if (statusData.user) {
+            document.getElementById('user-status-text').innerText = statusData.user;
+          }
+          await loadAllChats();
+        } else {
+          errEl.style.display = 'block';
+        }
+      } catch (err) {
+        errEl.innerText = 'Network error while verifying';
+        errEl.style.display = 'block';
+      }
+    }
+
+    async function handleLogout() {
+      if (!confirm('Lock TeleRelay now?')) return;
+      await fetch('/api/auth/logout', {method: 'POST'});
+      showLockscreen();
     }
 
     async function loadAllChats() {

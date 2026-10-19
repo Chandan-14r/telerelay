@@ -9,7 +9,7 @@ import sys
 import socket
 import asyncio
 import threading
-from flask import Flask, render_template, request, jsonify, send_file
+from flask import Flask, render_template, request, jsonify, send_file, session
 from telethon import TelegramClient
 from telethon.tl.types import (
     MessageMediaPhoto,
@@ -29,6 +29,10 @@ sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
 app = Flask(__name__)
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", "telerelay_super_secret_jwt_key_2026")
+
+# Security Passcode (can be changed via environment variable in Render or .env)
+APP_PASSWORD = os.environ.get("APP_PASSWORD", "1234").strip()
 
 # Global async event loop and Telethon client in a dedicated worker thread
 loop = asyncio.new_event_loop()
@@ -256,6 +260,41 @@ async def _forward_message_item(source_chat, message_ids=None, limit=0):
 # ──────────────────────────────────────────────
 # Routes
 # ──────────────────────────────────────────────
+
+@app.before_request
+def check_auth():
+    # Allow static assets and authentication endpoints freely
+    if request.path.startswith('/static') or request.path in ['/api/auth/login', '/api/auth/check']:
+        return None
+
+    # Check if user is authenticated via session
+    if APP_PASSWORD and not session.get('authenticated'):
+        if request.path.startswith('/api/'):
+            return jsonify({"error": "unauthorized", "locked": True}), 401
+    return None
+
+
+@app.route('/api/auth/check')
+def auth_check():
+    is_authenticated = bool(session.get('authenticated')) or not bool(APP_PASSWORD)
+    return jsonify({"authenticated": is_authenticated})
+
+
+@app.route('/api/auth/login', methods=['POST'])
+def auth_login():
+    data = request.json or {}
+    password = str(data.get('password', '')).strip()
+    if password == APP_PASSWORD:
+        session['authenticated'] = True
+        return jsonify({"success": True})
+    return jsonify({"success": False, "error": "Invalid passcode"}), 401
+
+
+@app.route('/api/auth/logout', methods=['POST'])
+def auth_logout():
+    session.pop('authenticated', None)
+    return jsonify({"success": True})
+
 
 @app.route('/')
 def index():
