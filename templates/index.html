@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>TeleRelay - Forward Restricted Media</title>
+  <link rel="manifest" href="/static/manifest.json">
+  <meta name="theme-color" content="#1e293b">
+  <link rel="apple-touch-icon" href="/static/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --card-border: #334155;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --accent: #10b981;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --danger: #ef4444;
+      --badge-lock: #f59e0b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--card-border);
+      padding: 14px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1.15rem;
+    }
+    .brand-icon {
+      background: linear-gradient(135deg, var(--primary), #8b5cf6);
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .user-pill {
+      font-size: 0.82rem;
+      background: #0284c722;
+      color: #38bdf8;
+      border: 1px solid #0284c744;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+    #pwa-install-btn {
+      display: none;
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    main {
+      flex: 1;
+      max-width: 900px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+    .section-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 12px;
+    }
+    select, input[type="text"] {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--card-border);
+      background: #0f172a;
+      color: var(--text);
+      font-size: 0.95rem;
+      outline: none;
+    }
+    select:focus, input[type="text"]:focus {
+      border-color: var(--primary);
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      touch-action: manipulation;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn-accent { background: var(--accent); }
+    .btn-accent:hover { background: #059669; }
+    .btn-secondary {
+      background: #334155;
+      color: var(--text);
+    }
+    .btn-secondary:hover { background: #475569; }
+    .btn-sm {
+      padding: 7px 12px;
+      font-size: 0.82rem;
+      border-radius: 6px;
+    }
+
+    /* Filter & Batch Controls */
+    .controls-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+    .search-box {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    /* Message Feed */
+    .msg-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 14px;
+      max-height: 560px;
+      overflow-y: auto;
+    }
+    .msg-item {
+      background: #151f32;
+      border: 1px solid #293548;
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .msg-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: var(--primary);
+    }
+    .msg-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .msg-title {
+      font-weight: 600;
+      font-size: 0.92rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .msg-meta {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .type-badge {
+      background: #3b82f622;
+      color: #60a5fa;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+
+    .load-more-container {
+      text-align: center;
+      margin-top: 14px;
+    }
+
+    /* Status Bar */
+    #status-toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1e293b;
+      border: 1px solid var(--primary);
+      padding: 14px 24px;
+      border-radius: 30px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+      display: none;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      z-index: 100;
+      max-width: 90vw;
+    }
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid #3b82f644;
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .batch-bar {
+      background: #1e3a8a33;
+      border: 1px solid #3b82f644;
+      border-radius: 8px;
+      padding: 10px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <div class="brand-icon">⚡</div>
+      <span>TeleRelay</span>
+    </div>
+    <div class="header-actions">
+      <button id="pwa-install-btn" onclick="installPWA()">📲 Install App</button>
+      <div class="user-pill" id="user-display">Connecting...</div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Chat Selector Card -->
+    <div class="card">
+      <div class="section-title">Select Channel / Bot</div>
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <select id="chat-select" onchange="onChatChanged()">
+          <option value="">Loading chats...</option>
+        </select>
+        <div style="display:flex; gap: 8px; flex-wrap: wrap;">
+          <button class="btn btn-secondary btn-sm" onclick="loadChats()">🔄 Refresh Chats</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Messages / Media Card -->
+    <div class="card" id="messages-card" style="display: none;">
+      <div style="display:flex; justify-content: space-between; align-items:center; flex-wrap: wrap; gap: 8px;">
+        <div class="section-title" style="margin:0;">Available Media (<span id="file-counter">0</span> loaded)</div>
+        <button class="btn btn-secondary btn-sm" onclick="reloadFromStart()">🔄 Reset & Reload</button>
+      </div>
+
+      <!-- Search & Filters -->
+      <div class="controls-row">
+        <input type="text" id="search-input" class="search-box" placeholder="🔍 Search episode or file name..." oninput="debounceSearch()">
+      </div>
+
+      <!-- Batch Bar -->
+      <div class="batch-bar" id="batch-bar">
+        <div style="display:flex; align-items:center; gap: 10px;">
+          <label style="display:flex; align-items:center; gap: 6px; font-size: 0.88rem; cursor: pointer;">
+            <input type="checkbox" id="select-all-cb" onchange="toggleSelectAll(this.checked)">
+            Select All (<span id="selected-count">0</span>)
+          </label>
+        </div>
+        <button class="btn btn-accent btn-sm" id="btn-batch-send" onclick="forwardSelected()" style="opacity: 0.5;" disabled>
+          ⏩ Forward Selected to Saved
+        </button>
+      </div>
+
+      <!-- Feed List -->
+      <div class="msg-list" id="msg-list"></div>
+
+      <!-- Load More Button -->
+      <div class="load-more-container" id="load-more-container" style="display: none;">
+        <button class="btn btn-secondary" id="btn-load-more" onclick="loadMoreMessages()">
+          ⬇ Load Next 50 Files
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <div id="status-toast">
+    <div class="spinner"></div>
+    <span id="toast-text">Processing...</span>
+  </div>
+
+  <script>
+    let currentChatId = null;
+    let nextOffsetId = 0;
+    let allLoadedMessages = [];
+    let searchDebounceTimer = null;
+    let deferredPrompt = null;
+
+    // Register Service Worker for PWA
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/static/sw.js');
+    }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      document.getElementById('pwa-install-btn').style.display = 'block';
+    });
+
+    async function installPWA() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          document.getElementById('pwa-install-btn').style.display = 'none';
+        }
+        deferredPrompt = null;
+      }
+    }
+
+    async function init() {
+      try {
+        const res = await fetch('/api/status');
+        const data = await res.json();
+        document.getElementById('user-display').innerText = data.user ? `Logged in: ${data.user}` : 'Not connected';
+        await loadChats();
+      } catch (err) {
+        document.getElementById('user-display').innerText = 'Connection Error';
+      }
+    }
+
+    async function loadChats() {
+      const select = document.getElementById('chat-select');
+      select.innerHTML = '<option value="">Loading chats from Telegram...</option>';
+      try {
+        const res = await fetch('/api/chats');
+        const chats = await res.json();
+        select.innerHTML = '<option value="">-- Choose a chat / channel --</option>';
+        chats.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c.id;
+          const restricted = c.restricted ? '🔒 ' : '';
+          opt.innerText = `${restricted}${c.title} (${c.type})`;
+          select.appendChild(opt);
+        });
+      } catch (e) {
+        select.innerHTML = '<option value="">Failed to load chats</option>';
+      }
+    }
+
+    async function onChatChanged() {
+      const select = document.getElementById('chat-select');
+      currentChatId = select.value;
+      if (!currentChatId) {
+        document.getElementById('messages-card').style.display = 'none';
+        return;
+      }
+      document.getElementById('messages-card').style.display = 'block';
+      reloadFromStart();
+    }
+
+    async function reloadFromStart() {
+      nextOffsetId = 0;
+      allLoadedMessages = [];
+      document.getElementById('msg-list').innerHTML = '';
+      document.getElementById('select-all-cb').checked = false;
+      updateSelectedCount();
+      await fetchMessagesBatch();
+    }
+
+    function debounceSearch() {
+      clearTimeout(searchDebounceTimer);
+      searchDebounceTimer = setTimeout(() => {
+        reloadFromStart();
+      }, 400);
+    }
+
+    async function fetchMessagesBatch() {
+      showToast('Fetching media list...');
+      const search = document.getElementById('search-input').value.trim();
+      const loadBtn = document.getElementById('btn-load-more');
+      loadBtn.disabled = true;
+
+      try {
+        const res = await fetch(`/api/messages?chat_id=${currentChatId}&limit=50&offset_id=${nextOffsetId}&search=${encodeURIComponent(search)}`);
+        const data = await res.json();
+        
+        const newItems = data.messages || [];
+        nextOffsetId = data.next_offset_id || 0;
+        
+        newItems.forEach(item => {
+          if (!allLoadedMessages.some(m => m.id === item.id)) {
+            allLoadedMessages.push(item);
+            appendMessageCard(item);
+          }
+        });
+
+        document.getElementById('file-counter').innerText = allLoadedMessages.length;
+        document.getElementById('load-more-container').style.display = (data.has_more && nextOffsetId > 0) ? 'block' : 'none';
+
+        if (allLoadedMessages.length === 0) {
+          document.getElementById('msg-list').innerHTML = '<div style="text-align:center; color: var(--text-muted); padding: 30px;">No matching media found</div>';
+        }
+      } catch (err) {
+        alert('Failed to fetch messages');
+      } finally {
+        loadBtn.disabled = false;
+        hideToast();
+      }
+    }
+
+    function appendMessageCard(m) {
+      const list = document.getElementById('msg-list');
+      const item = document.createElement('div');
+      item.className = 'msg-item';
+      item.id = `card-${m.id}`;
+      item.innerHTML = `
+        <input type="checkbox" class="file-cb" value="${m.id}" onchange="updateSelectedCount()">
+        <div class="msg-info">
+          <div class="msg-title" title="${m.filename}">${m.filename}</div>
+          <div class="msg-meta">
+            <span class="type-badge">${m.type.toUpperCase()}</span>
+            <span>${m.size}</span>
+            <span>ID: ${m.id}</span>
+          </div>
+        </div>
+        <button class="btn btn-sm btn-accent" onclick="forwardSingle(${m.id})">
+          📤 Send
+        </button>
+      `;
+      list.appendChild(item);
+    }
+
+    function loadMoreMessages() {
+      fetchMessagesBatch();
+    }
+
+    function toggleSelectAll(isChecked) {
+      const checkboxes = document.querySelectorAll('.file-cb');
+      checkboxes.forEach(cb => cb.checked = isChecked);
+      updateSelectedCount();
+    }
+
+    function updateSelectedCount() {
+      const selected = document.querySelectorAll('.file-cb:checked');
+      document.getElementById('selected-count').innerText = selected.length;
+      const btn = document.getElementById('btn-batch-send');
+      if (selected.length > 0) {
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.innerText = `⏩ Forward ${selected.length} to Saved`;
+      } else {
+        btn.disabled = true;
+        btn.style.opacity = '0.5';
+        btn.innerText = '⏩ Forward Selected to Saved';
+      }
+    }
+
+    function showToast(text) {
+      const t = document.getElementById('status-toast');
+      document.getElementById('toast-text').innerText = text;
+      t.style.display = 'flex';
+    }
+
+    function hideToast() {
+      document.getElementById('status-toast').style.display = 'none';
+    }
+
+    async function forwardSingle(msgId) {
+      showToast(`Streaming msg ${msgId} directly to Saved Messages...`);
+      try {
+        const res = await fetch('/api/forward', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            source_chat: currentChatId,
+            message_ids: [msgId]
+          })
+        });
+        const resData = await res.json();
+        if (resData.success) {
+          alert('✅ Sent directly to Saved Messages!');
+        } else {
+          alert('❌ Failed: ' + (resData.error || 'Unknown error'));
+        }
+      } catch (e) {
+        alert('Network error while forwarding');
+      } finally {
+        hideToast();
+      }
+    }
+
+    async function forwardSelected() {
+      const checked = Array.from(document.querySelectorAll('.file-cb:checked')).map(cb => parseInt(cb.value));
+      if (checked.length === 0) return;
+      if (!confirm(`Stream ${checked.length} files directly to Saved Messages in RAM?`)) return;
+
+      showToast(`Streaming ${checked.length} files to Saved Messages...`);
+      try {
+        const res = await fetch('/api/forward', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            source_chat: currentChatId,
+            message_ids: checked
+          })
+        });
+        const resData = await res.json();
+        if (resData.success) {
+          alert(`✅ Successfully sent ${resData.count} file(s) to Saved Messages!`);
+          document.querySelectorAll('.file-cb:checked').forEach(cb => cb.checked = false);
+          document.getElementById('select-all-cb').checked = false;
+          updateSelectedCount();
+        } else {
+          alert('❌ Failed: ' + (resData.error || 'Unknown error'));
+        }
+      } catch (e) {
+        alert('Network error while batch forwarding');
+      } finally {
+        hideToast();
+      }
+    }
+
+    window.onload = init;
+  </script>
+</body>
+</html>
