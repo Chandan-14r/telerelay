@@ -3,350 +3,202 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>TeleRelay • Modern Restricted Media Streamer</title>
+  <title>TeleRelay</title>
   <link rel="manifest" href="/static/manifest.json">
-  <meta name="theme-color" content="#090d16">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0b0e14">
   <link rel="apple-touch-icon" href="/static/icon-192.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #090d16;
-      --surface: rgba(18, 25, 43, 0.7);
+      --bg: #0b0e14;
+      --bg-elevated: #131924;
+      --surface: rgba(23, 31, 46, 0.75);
       --surface-border: rgba(255, 255, 255, 0.08);
-      --surface-hover: rgba(30, 41, 69, 0.8);
-      --primary: #3b82f6;
-      --primary-glow: rgba(59, 130, 246, 0.35);
-      --accent: #10b981;
-      --accent-glow: rgba(16, 185, 129, 0.35);
-      --text: #f8fafc;
-      --text-muted: #94a3b8;
-      --warning: #f59e0b;
-      --danger: #ef4444;
-      --radius: 16px;
+      --surface-hover: rgba(32, 43, 63, 0.9);
+      --tg-blue: #2AABEE;
+      --tg-blue-hover: #229ED9;
+      --tg-gradient: linear-gradient(135deg, #2AABEE, #229ED9 50%, #0088cc);
+      --accent-green: #10b981;
+      --accent-gold: #f59e0b;
+      --text: #ffffff;
+      --text-sub: #94a3b8;
+      --text-muted: #64748b;
+      --radius-sm: 12px;
+      --radius-md: 18px;
+      --radius-lg: 24px;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
+    }
 
     body {
-      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
-      background: radial-gradient(circle at 50% 0%, #1e1b4b 0%, var(--bg) 60%);
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg);
       color: var(--text);
       min-height: 100vh;
+      min-height: -webkit-fill-available;
       display: flex;
       flex-direction: column;
       overflow-x: hidden;
+      padding-top: var(--safe-top);
+      padding-bottom: calc(var(--safe-bottom) + 90px);
     }
 
-    /* Ambient Background Glow */
-    .ambient-glow {
+    /* Ambient Lighting */
+    .ambient-mesh {
       position: fixed;
-      width: 400px;
-      height: 400px;
-      border-radius: 50%;
-      background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
-      top: -100px;
-      right: -100px;
+      top: -20%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 140vw;
+      height: 450px;
+      background: radial-gradient(ellipse at 50% 30%, rgba(42, 171, 238, 0.15) 0%, rgba(139, 92, 246, 0.08) 40%, transparent 70%);
       pointer-events: none;
       z-index: 0;
-      opacity: 0.6;
-      animation: floatGlow 12s ease-in-out infinite alternate;
-    }
-    @keyframes floatGlow {
-      from { transform: translate(0, 0) scale(1); }
-      to { transform: translate(-40px, 40px) scale(1.15); }
     }
 
-    /* Header */
-    header {
-      background: rgba(9, 13, 22, 0.75);
+    /* Top App Bar */
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(11, 14, 20, 0.82);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border-bottom: 1px solid var(--surface-border);
-      padding: 14px 20px;
+      padding: 12px 18px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      position: sticky;
-      top: 0;
-      z-index: 50;
     }
 
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-weight: 800;
-      font-size: 1.15rem;
-      letter-spacing: -0.02em;
-    }
-    .brand-icon {
-      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.1rem;
-      box-shadow: 0 4px 14px var(--primary-glow);
-    }
-
-    .header-actions {
+    .brand-wrap {
       display: flex;
       align-items: center;
       gap: 10px;
     }
-
-    .user-pill {
-      font-size: 0.8rem;
-      background: rgba(56, 189, 248, 0.1);
-      color: #38bdf8;
-      border: 1px solid rgba(56, 189, 248, 0.25);
-      padding: 6px 14px;
-      border-radius: 30px;
-      font-weight: 600;
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--tg-gradient);
       display: flex;
       align-items: center;
-      gap: 6px;
+      justify-content: center;
+      font-size: 1.15rem;
+      box-shadow: 0 4px 16px rgba(42, 171, 238, 0.35);
     }
-    .online-dot {
+    .brand-title {
+      font-weight: 800;
+      font-size: 1.1rem;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #ffffff 40%, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--surface-border);
+      padding: 6px 12px;
+      border-radius: 30px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--tg-blue);
+    }
+    .status-dot {
       width: 7px;
       height: 7px;
-      background: #10b981;
       border-radius: 50%;
-      box-shadow: 0 0 8px #10b981;
-      animation: pulse 2s infinite;
+      background: var(--accent-green);
+      box-shadow: 0 0 10px var(--accent-green);
+      animation: pulseGreen 2s infinite;
     }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.5; transform: scale(0.85); }
+    @keyframes pulseGreen {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(0.8); opacity: 0.6; }
     }
 
-    #pwa-install-btn {
-      display: none;
-      background: linear-gradient(135deg, #10b981, #059669);
-      color: white;
-      border: none;
-      padding: 6px 14px;
-      border-radius: 30px;
-      font-size: 0.8rem;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 0 4px 12px var(--accent-glow);
-      transition: transform 0.15s ease;
-    }
-    #pwa-install-btn:active { transform: scale(0.96); }
-
-    /* Layout */
-    main {
-      flex: 1;
-      max-width: 860px;
+    /* Main Container */
+    .app-body {
+      max-width: 680px;
       width: 100%;
       margin: 0 auto;
-      padding: 20px 16px;
+      padding: 16px;
       display: flex;
       flex-direction: column;
-      gap: 18px;
+      gap: 14px;
       position: relative;
       z-index: 1;
     }
 
-    /* Glass Cards */
-    .glass-card {
+    /* Chat Selection Card */
+    .chat-card {
       background: var(--surface);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
-      border: 1px solid var(--surface-border);
-      border-radius: var(--radius);
-      padding: 20px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-      transition: border-color 0.2s ease;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .glass-card:hover {
-      border-color: rgba(255, 255, 255, 0.14);
-    }
-
-    /* Chat Selector Trigger */
-    .chat-trigger {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: rgba(10, 15, 28, 0.8);
-      border: 1px solid var(--surface-border);
-      border-radius: 12px;
-      padding: 14px 18px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-    .chat-trigger:hover {
+    .chat-card:active {
+      transform: scale(0.98);
       background: var(--surface-hover);
-      border-color: var(--primary);
     }
-    .chat-trigger-info {
+    .chat-card-left {
       display: flex;
       align-items: center;
-      gap: 12px;
-    }
-    .avatar-circle {
-      width: 42px;
-      height: 42px;
-      border-radius: 12px;
-      background: linear-gradient(135deg, #6366f1, #3b82f6);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 1.1rem;
-      color: white;
-    }
-    .trigger-text-title {
-      font-weight: 700;
-      font-size: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .trigger-text-sub {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      margin-top: 2px;
-    }
-
-    /* Modal / Drawer for Chat Selection */
-    .modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(10px);
-      z-index: 100;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-      animation: fadeIn 0.2s ease;
-    }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-    .modal-box {
-      background: #12192b;
-      border: 1px solid var(--surface-border);
-      border-radius: 20px;
-      width: 100%;
-      max-width: 560px;
-      max-height: 82vh;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
-      animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-      overflow: hidden;
-    }
-    @keyframes slideUp {
-      from { transform: translateY(30px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-
-    .modal-header {
-      padding: 18px 20px;
-      border-bottom: 1px solid var(--surface-border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .modal-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-    }
-    .close-btn {
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      font-size: 1.4rem;
-      cursor: pointer;
-      line-height: 1;
-      padding: 4px;
-    }
-
-    /* Category Filter Pills */
-    .filter-pills {
-      display: flex;
-      gap: 8px;
-      padding: 12px 20px;
-      overflow-x: auto;
-      border-bottom: 1px solid var(--surface-border);
-    }
-    .pill {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--surface-border);
-      color: var(--text-muted);
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: all 0.15s ease;
-    }
-    .pill.active {
-      background: var(--primary);
-      color: white;
-      border-color: var(--primary);
-      box-shadow: 0 2px 10px var(--primary-glow);
-    }
-
-    .modal-search {
-      padding: 14px 20px 8px;
-    }
-    .search-input {
-      width: 100%;
-      background: #090d16;
-      border: 1px solid var(--surface-border);
-      border-radius: 12px;
-      padding: 12px 16px;
-      color: var(--text);
-      font-size: 0.95rem;
-      outline: none;
-      transition: border-color 0.2s ease;
-    }
-    .search-input:focus {
-      border-color: var(--primary);
-    }
-
-    .chat-list {
-      flex: 1;
-      overflow-y: auto;
-      padding: 10px 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .chat-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 14px;
-      border-radius: 12px;
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid transparent;
-      cursor: pointer;
-      transition: all 0.15s ease;
-    }
-    .chat-item:hover {
-      background: rgba(255, 255, 255, 0.06);
-      border-color: rgba(255, 255, 255, 0.1);
-      transform: translateX(4px);
-    }
-    .chat-item-info {
-      flex: 1;
+      gap: 14px;
       min-width: 0;
     }
-    .chat-item-title {
-      font-weight: 600;
-      font-size: 0.92rem;
+    .chat-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: var(--tg-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: white;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+      flex-shrink: 0;
+    }
+    .chat-info {
+      min-width: 0;
+    }
+    .chat-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--tg-blue);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 2px;
+    }
+    .chat-title-text {
+      font-weight: 700;
+      font-size: 0.98rem;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -354,347 +206,579 @@
       align-items: center;
       gap: 6px;
     }
-    .chat-item-type {
-      font-size: 0.75rem;
-      color: var(--text-muted);
+    .chat-sub-text {
+      font-size: 0.78rem;
+      color: var(--text-sub);
       margin-top: 2px;
     }
+    .chevron-icon {
+      color: var(--text-muted);
+      font-size: 1.2rem;
+      padding-left: 10px;
+    }
+
+    /* Badges */
     .badge-lock {
       background: rgba(245, 158, 11, 0.15);
-      color: #f59e0b;
-      border: 1px solid rgba(245, 158, 11, 0.3);
-      padding: 2px 8px;
-      border-radius: 12px;
-      font-size: 0.72rem;
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      padding: 2px 7px;
+      border-radius: 20px;
+      font-size: 0.68rem;
       font-weight: 700;
     }
 
-    /* Media Feed */
-    .feed-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 16px;
+    /* Feed Controls */
+    .search-pill-box {
+      position: relative;
+      margin-top: 4px;
     }
-    .feed-title {
-      font-size: 1.05rem;
-      font-weight: 800;
-      letter-spacing: -0.01em;
-    }
-
-    /* Batch Controls */
-    .batch-bar {
-      background: rgba(59, 130, 246, 0.08);
-      border: 1px solid rgba(59, 130, 246, 0.2);
-      border-radius: 12px;
-      padding: 12px 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 14px;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    /* Buttons */
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      background: var(--primary);
-      color: white;
-      border: none;
-      padding: 10px 18px;
-      border-radius: 10px;
-      font-weight: 700;
-      font-size: 0.88rem;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      touch-action: manipulation;
-    }
-    .btn:active { transform: scale(0.97); }
-    .btn-accent {
-      background: linear-gradient(135deg, #10b981, #059669);
-      box-shadow: 0 4px 14px var(--accent-glow);
-    }
-    .btn-accent:hover { opacity: 0.95; }
-    .btn-secondary {
-      background: rgba(255, 255, 255, 0.08);
+    .search-input {
+      width: 100%;
+      background: rgba(19, 25, 36, 0.85);
       border: 1px solid var(--surface-border);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px 12px 42px;
       color: var(--text);
+      font-size: 0.92rem;
+      font-family: inherit;
+      outline: none;
+      transition: all 0.2s ease;
+      user-select: text;
+      -webkit-user-select: text;
     }
-    .btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.14);
+    .search-input:focus {
+      border-color: var(--tg-blue);
+      box-shadow: 0 0 16px rgba(42, 171, 238, 0.2);
     }
-    .btn-sm {
-      padding: 7px 14px;
-      font-size: 0.8rem;
-      border-radius: 8px;
+    .search-icon-svg {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 18px;
+      height: 18px;
+      fill: var(--text-muted);
+      pointer-events: none;
     }
 
-    /* Media List Items */
-    .msg-list {
+    /* Media List */
+    .feed-container {
       display: flex;
       flex-direction: column;
       gap: 10px;
-      max-height: 580px;
-      overflow-y: auto;
-      padding-right: 4px;
+      margin-top: 4px;
     }
-    .msg-card {
-      background: rgba(14, 21, 38, 0.6);
-      border: 1px solid var(--surface-border);
-      border-radius: 14px;
-      padding: 14px 16px;
+    .feed-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 4px;
+    }
+    .feed-counter {
+      font-size: 0.82rem;
+      color: var(--text-sub);
+      font-weight: 600;
+    }
+    .btn-select-all {
+      background: none;
+      border: none;
+      color: var(--tg-blue);
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 4px 6px;
+    }
+
+    /* Media Item Card */
+    .media-card {
+      background: var(--surface);
+      border: 1.5px solid var(--surface-border);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
       display: flex;
       align-items: center;
       gap: 14px;
-      transition: all 0.2s ease;
-      animation: cardFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    @keyframes cardFadeIn {
-      from { opacity: 0; transform: translateY(12px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .msg-card:hover {
-      background: rgba(20, 30, 55, 0.75);
-      border-color: rgba(255, 255, 255, 0.15);
-      transform: translateY(-2px);
-    }
-
-    .msg-checkbox {
-      width: 20px;
-      height: 20px;
       cursor: pointer;
-      accent-color: var(--primary);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .media-card:active {
+      transform: scale(0.985);
+    }
+    .media-card.selected {
+      border-color: var(--tg-blue);
+      background: rgba(42, 171, 238, 0.12);
+      box-shadow: 0 4px 18px rgba(42, 171, 238, 0.15);
     }
 
-    .media-icon-box {
+    .check-circle {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .media-card.selected .check-circle {
+      background: var(--tg-blue);
+      border-color: var(--tg-blue);
+    }
+    .check-circle svg {
+      width: 14px;
+      height: 14px;
+      fill: none;
+      stroke: white;
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      opacity: 0;
+      transform: scale(0.5);
+      transition: all 0.15s ease;
+    }
+    .media-card.selected .check-circle svg {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .media-type-icon {
       width: 44px;
       height: 44px;
       border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.25rem;
-      background: rgba(59, 130, 246, 0.12);
-      border: 1px solid rgba(59, 130, 246, 0.25);
+      font-size: 1.3rem;
+      flex-shrink: 0;
     }
-    .media-icon-box.audio { background: rgba(245, 158, 11, 0.12); border-color: rgba(245, 158, 11, 0.25); }
-    .media-icon-box.video { background: rgba(139, 92, 246, 0.12); border-color: rgba(139, 92, 246, 0.25); }
+    .media-type-icon.audio { background: rgba(245, 158, 11, 0.14); border: 1px solid rgba(245, 158, 11, 0.3); }
+    .media-type-icon.video { background: rgba(139, 92, 246, 0.14); border: 1px solid rgba(139, 92, 246, 0.3); }
+    .media-type-icon.photo { background: rgba(16, 185, 129, 0.14); border: 1px solid rgba(16, 185, 129, 0.3); }
+    .media-type-icon.file { background: rgba(59, 130, 246, 0.14); border: 1px solid rgba(59, 130, 246, 0.3); }
 
-    .msg-body {
+    .media-meta-wrap {
       flex: 1;
       min-width: 0;
     }
-    .msg-title {
+    .media-title {
       font-weight: 700;
       font-size: 0.92rem;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      color: #f1f5f9;
     }
-    .msg-meta {
-      font-size: 0.78rem;
-      color: var(--text-muted);
-      margin-top: 4px;
+    .media-info-row {
+      font-size: 0.76rem;
+      color: var(--text-sub);
+      margin-top: 3px;
       display: flex;
-      gap: 10px;
       align-items: center;
+      gap: 8px;
     }
-    .type-tag {
-      font-size: 0.7rem;
-      font-weight: 700;
-      padding: 2px 6px;
-      border-radius: 4px;
+    .tag-badge {
       background: rgba(255, 255, 255, 0.08);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 0.68rem;
     }
 
-    /* Toast Notification */
-    #status-toast {
+    .btn-quick-send {
+      background: var(--tg-gradient);
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(42, 171, 238, 0.3);
+      flex-shrink: 0;
+      transition: transform 0.15s ease;
+    }
+    .btn-quick-send:active { transform: scale(0.94); }
+
+    /* Floating Dock at Bottom (Mobile Native UX) */
+    .floating-dock {
       position: fixed;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(18, 25, 43, 0.95);
+      bottom: calc(var(--safe-bottom) + 14px);
+      left: 16px;
+      right: 16px;
+      max-width: 648px;
+      margin: 0 auto;
+      z-index: 50;
+      background: rgba(19, 25, 36, 0.92);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 20px;
+      padding: 10px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7), 0 0 24px rgba(42, 171, 238, 0.2);
+      transform: translateY(120%);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .floating-dock.visible {
+      transform: translateY(0);
+    }
+    .dock-left-count {
+      display: flex;
+      flex-direction: column;
+    }
+    .dock-title {
+      font-size: 0.88rem;
+      font-weight: 800;
+    }
+    .dock-sub {
+      font-size: 0.72rem;
+      color: var(--text-sub);
+    }
+    .dock-btn {
+      background: var(--tg-gradient);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 14px;
+      font-weight: 800;
+      font-size: 0.92rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 16px rgba(42, 171, 238, 0.4);
+      transition: transform 0.15s ease;
+    }
+    .dock-btn:active { transform: scale(0.96); }
+
+    /* Modern Bottom Sheet / Drawer for Chat Picker */
+    .sheet-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      z-index: 100;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      animation: fadeIn 0.2s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .bottom-sheet {
+      background: #111722;
+      border-top: 1px solid var(--surface-border);
+      border-radius: 26px 26px 0 0;
+      width: 100%;
+      max-width: 680px;
+      max-height: 84vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.8);
+      animation: sheetUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      padding-bottom: calc(var(--safe-bottom) + 12px);
+    }
+    @keyframes sheetUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .sheet-grabber {
+      width: 40px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+      margin: 12px auto 6px;
+    }
+
+    .sheet-head {
+      padding: 10px 20px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .sheet-title {
+      font-weight: 800;
+      font-size: 1.15rem;
+    }
+    .sheet-close {
+      background: rgba(255, 255, 255, 0.08);
+      border: none;
+      color: var(--text-sub);
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Filter Tabs in Sheet */
+    .sheet-tabs {
+      display: flex;
+      gap: 8px;
+      padding: 0 18px 12px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .sheet-tabs::-webkit-scrollbar { display: none; }
+    .tab-pill {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--surface-border);
+      color: var(--text-sub);
+      padding: 6px 14px;
+      border-radius: 30px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .tab-pill.active {
+      background: var(--tg-gradient);
+      color: white;
+      border-color: var(--tg-blue);
+      box-shadow: 0 2px 12px rgba(42, 171, 238, 0.35);
+    }
+
+    .sheet-search-wrap {
+      padding: 0 18px 10px;
+    }
+
+    .sheet-scroll-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 4px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .sheet-chat-item {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid transparent;
+      border-radius: 14px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .sheet-chat-item:active {
+      background: rgba(42, 171, 238, 0.15);
+      border-color: var(--tg-blue);
+      transform: scale(0.985);
+    }
+    .sheet-chat-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 13px;
+      background: var(--tg-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.1rem;
+      color: white;
+      flex-shrink: 0;
+    }
+    .sheet-chat-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .sheet-chat-sub {
+      font-size: 0.76rem;
+      color: var(--text-sub);
+      margin-top: 2px;
+    }
+
+    /* Modern Toast */
+    .mobile-toast {
+      position: fixed;
+      top: calc(var(--safe-top) + 20px);
+      left: 18px;
+      right: 18px;
+      max-width: 500px;
+      margin: 0 auto;
+      background: rgba(17, 24, 39, 0.94);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
-      border: 1px solid var(--primary);
-      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.7), 0 0 20px var(--primary-glow);
-      padding: 14px 26px;
-      border-radius: 40px;
+      border: 1px solid var(--tg-blue);
+      border-radius: 16px;
+      padding: 14px 18px;
       display: none;
       align-items: center;
       gap: 12px;
-      font-size: 0.92rem;
+      font-size: 0.88rem;
       font-weight: 600;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 0 0 20px rgba(42, 171, 238, 0.25);
       z-index: 200;
-      max-width: 90vw;
-      animation: toastPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      animation: toastDrop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    @keyframes toastPop {
-      from { transform: translate(-50%, 20px) scale(0.9); opacity: 0; }
-      to { transform: translate(-50%, 0) scale(1); opacity: 1; }
+    @keyframes toastDrop {
+      from { transform: translateY(-30px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
     }
-
-    .spinner {
-      width: 20px;
-      height: 20px;
-      border: 3px solid rgba(59, 130, 246, 0.3);
-      border-top-color: var(--primary);
+    .toast-spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(42, 171, 238, 0.3);
+      border-top-color: var(--tg-blue);
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
+      flex-shrink: 0;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 6px; }
-    ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
+    /* Load More Button */
+    .btn-load-more {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--surface-border);
+      color: var(--text);
+      padding: 14px;
+      border-radius: var(--radius-sm);
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: all 0.2s ease;
+    }
+    .btn-load-more:active {
+      background: var(--surface-hover);
+      transform: scale(0.98);
+    }
   </style>
 </head>
 <body>
 
-  <div class="ambient-glow"></div>
+  <div class="ambient-mesh"></div>
 
-  <header>
-    <div class="brand">
+  <!-- Top Header -->
+  <header class="app-header">
+    <div class="brand-wrap">
       <div class="brand-icon">⚡</div>
-      <span>TeleRelay</span>
+      <span class="brand-title">TeleRelay</span>
     </div>
-    <div class="header-actions">
-      <button id="pwa-install-btn" onclick="installPWA()">📲 Install App</button>
-      <div class="user-pill" id="user-display">
-        <div class="online-dot"></div>
-        <span id="user-name-text">Connecting...</span>
-      </div>
+    <div class="header-status">
+      <div class="status-dot"></div>
+      <span id="user-status-text">Connected</span>
     </div>
   </header>
 
-  <main>
-    <!-- Chat Selector Trigger -->
-    <div class="glass-card" style="padding: 16px;">
-      <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">Active Channel / Bot</div>
-      <div class="chat-trigger" onclick="openChatModal()">
-        <div class="chat-trigger-info">
-          <div class="avatar-circle" id="selected-avatar">💬</div>
-          <div>
-            <div class="trigger-text-title" id="selected-title">Tap to Choose Chat / Channel</div>
-            <div class="trigger-text-sub" id="selected-subtitle">Browse restricted channels, bots, or groups</div>
-          </div>
+  <!-- Main Body -->
+  <main class="app-body">
+    <!-- Active Chat Banner -->
+    <div class="chat-card" onclick="openDrawer()">
+      <div class="chat-card-left">
+        <div class="chat-avatar" id="active-chat-avatar">💬</div>
+        <div class="chat-info">
+          <div class="chat-label">Channel / Chat</div>
+          <div class="chat-title-text" id="active-chat-title">Select a Chat or Bot</div>
+          <div class="chat-sub-text" id="active-chat-sub">Tap here to pick from your channels</div>
         </div>
-        <div style="font-size: 1.1rem; color: var(--text-muted);">❯</div>
       </div>
+      <div class="chevron-icon">❯</div>
     </div>
 
-    <!-- Messages / Media Container -->
-    <div class="glass-card" id="messages-card" style="display: none;">
-      <div class="feed-header">
-        <div>
-          <div class="feed-title" id="feed-title">Channel Media</div>
-          <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">
-            <span id="file-counter">0</span> files loaded
-          </div>
-        </div>
-        <div style="display:flex; gap: 8px;">
-          <button class="btn btn-secondary btn-sm" onclick="reloadFromStart()">🔄 Refresh</button>
-        </div>
+    <!-- Feed Section -->
+    <div id="media-feed-wrapper" style="display: none;">
+      <!-- Search Input -->
+      <div class="search-pill-box">
+        <svg class="search-icon-svg" viewBox="0 0 24 24">
+          <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+        </svg>
+        <input type="text" id="media-search-input" class="search-input" placeholder="Search episode or file name..." oninput="onSearchChanged()">
       </div>
 
-      <!-- Real-time Media Search -->
-      <div style="margin-bottom: 12px;">
-        <input type="text" id="search-input" class="search-input" placeholder="🔍 Search episode, title, or filename..." oninput="debounceSearch()">
+      <!-- Feed Header -->
+      <div class="feed-header-row" style="margin-top: 14px;">
+        <span class="feed-counter" id="feed-counter-label">0 files loaded</span>
+        <button class="btn-select-all" onclick="toggleSelectAll()">Select All</button>
       </div>
 
-      <!-- Batch Actions Bar -->
-      <div class="batch-bar" id="batch-bar">
-        <label style="display:flex; align-items:center; gap: 8px; font-size: 0.88rem; font-weight: 600; cursor: pointer;">
-          <input type="checkbox" id="select-all-cb" style="width: 18px; height: 18px; accent-color: var(--primary);" onchange="toggleSelectAll(this.checked)">
-          Select All (<span id="selected-count">0</span>)
-        </label>
-        <button class="btn btn-accent btn-sm" id="btn-batch-send" onclick="forwardSelected()" style="opacity: 0.45;" disabled>
-          ⏩ Forward Selected to Saved
-        </button>
-      </div>
-
-      <!-- Live Media Cards Feed -->
-      <div class="msg-list" id="msg-list"></div>
+      <!-- Media List -->
+      <div class="feed-container" id="media-list-container"></div>
 
       <!-- Load More Button -->
-      <div style="text-align: center; margin-top: 16px;" id="load-more-container" style="display: none;">
-        <button class="btn btn-secondary" id="btn-load-more" onclick="loadMoreMessages()" style="width: 100%;">
-          ⬇ Load Next 50 Files
-        </button>
-      </div>
+      <button class="btn-load-more" id="btn-load-more" onclick="loadMoreBatch()" style="display: none;">
+        ⬇ Load Next 50 Files
+      </button>
     </div>
   </main>
 
-  <!-- Modern Chat Picker Modal -->
-  <div class="modal-overlay" id="chat-modal" onclick="closeChatModalOnBackdrop(event)">
-    <div class="modal-box">
-      <div class="modal-header">
-        <div class="modal-title">Select Channel or Bot</div>
-        <button class="close-btn" onclick="closeChatModal()">✕</button>
+  <!-- Mobile Floating Bottom Action Dock -->
+  <div class="floating-dock" id="floating-dock">
+    <div class="dock-left-count">
+      <span class="dock-title"><span id="dock-selected-num">0</span> files selected</span>
+      <span class="dock-sub">Streams directly to Saved Messages</span>
+    </div>
+    <button class="dock-btn" onclick="forwardBatchSelected()">
+      <span>⚡ Send Now</span>
+    </button>
+  </div>
+
+  <!-- Mobile Native Bottom Sheet Drawer -->
+  <div class="sheet-backdrop" id="sheet-backdrop" onclick="onBackdropClick(event)">
+    <div class="bottom-sheet">
+      <div class="sheet-grabber"></div>
+      <div class="sheet-head">
+        <span class="sheet-title">Select Channel or Bot</span>
+        <button class="sheet-close" onclick="closeDrawer()">✕</button>
       </div>
 
-      <!-- Filter Pills -->
-      <div class="filter-pills">
-        <div class="pill active" onclick="setFilter('all', this)">All Chats (<span id="count-all">0</span>)</div>
-        <div class="pill" onclick="setFilter('restricted', this)">🔒 Restricted (<span id="count-restricted">0</span>)</div>
-        <div class="pill" onclick="setFilter('channel', this)">📢 Channels (<span id="count-channels">0</span>)</div>
-        <div class="pill" onclick="setFilter('bot', this)">🤖 Bots (<span id="count-bots">0</span>)</div>
+      <!-- Tabs -->
+      <div class="sheet-tabs">
+        <div class="tab-pill active" onclick="switchFilter('all', this)">All (<span id="tab-cnt-all">0</span>)</div>
+        <div class="tab-pill" onclick="switchFilter('restricted', this)">🔒 Restricted (<span id="tab-cnt-res">0</span>)</div>
+        <div class="tab-pill" onclick="switchFilter('channel', this)">📢 Channels (<span id="tab-cnt-chan">0</span>)</div>
+        <div class="tab-pill" onclick="switchFilter('bot', this)">🤖 Bots (<span id="tab-cnt-bot">0</span>)</div>
       </div>
 
-      <!-- Modal Search Bar -->
-      <div class="modal-search">
-        <input type="text" id="modal-chat-search" class="search-input" placeholder="Search chats by name..." oninput="filterChats()">
+      <!-- Search in Drawer -->
+      <div class="sheet-search-wrap">
+        <input type="text" id="drawer-search-input" class="search-input" style="padding-left: 16px;" placeholder="Search your chats..." oninput="renderDrawerChats()">
       </div>
 
-      <!-- Chat Items List -->
-      <div class="chat-list" id="chat-list-container">
-        <div style="text-align: center; padding: 30px; color: var(--text-muted);">Loading chats...</div>
+      <!-- Scrollable List -->
+      <div class="sheet-scroll-list" id="drawer-chats-list">
+        <div style="text-align:center; padding: 30px; color: var(--text-muted);">Loading chats...</div>
       </div>
     </div>
   </div>
 
-  <!-- Toast Notification -->
-  <div id="status-toast">
-    <div class="spinner"></div>
-    <span id="toast-text">Streaming directly to Saved Messages...</span>
+  <!-- Toast Alert -->
+  <div class="mobile-toast" id="app-toast">
+    <div class="toast-spinner"></div>
+    <span id="toast-message-text">Streaming media...</span>
   </div>
 
   <script>
     let rawChats = [];
     let currentFilter = 'all';
-    let currentChatId = null;
+    let activeChat = null;
     let nextOffsetId = 0;
-    let allLoadedMessages = [];
+    let loadedMessages = [];
+    let selectedMsgIds = new Set();
     let searchDebounceTimer = null;
-    let deferredPrompt = null;
 
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/static/sw.js');
-    }
-
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      document.getElementById('pwa-install-btn').style.display = 'block';
-    });
-
-    async function installPWA() {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
-          document.getElementById('pwa-install-btn').style.display = 'none';
-        }
-        deferredPrompt = null;
-      }
     }
 
     async function init() {
@@ -702,40 +786,43 @@
         const res = await fetch('/api/status');
         const data = await res.json();
         if (data.user) {
-          document.getElementById('user-name-text').innerText = data.user;
-        } else {
-          document.getElementById('user-name-text').innerText = 'Offline';
+          document.getElementById('user-status-text').innerText = data.user;
         }
-        await fetchChats();
-      } catch (err) {
-        document.getElementById('user-name-text').innerText = 'Error connecting';
+        await loadAllChats();
+      } catch (e) {
+        document.getElementById('user-status-text').innerText = 'Offline';
       }
     }
 
-    async function fetchChats() {
+    async function loadAllChats() {
       try {
         const res = await fetch('/api/chats');
         rawChats = await res.json();
-        
-        // Count categories
-        document.getElementById('count-all').innerText = rawChats.length;
-        document.getElementById('count-restricted').innerText = rawChats.filter(c => c.restricted).length;
-        document.getElementById('count-channels').innerText = rawChats.filter(c => c.type === 'Channel' || c.type === 'Supergroup').length;
-        document.getElementById('count-bots').innerText = rawChats.filter(c => c.type === 'User').length;
 
-        renderChatList();
+        document.getElementById('tab-cnt-all').innerText = rawChats.length;
+        document.getElementById('tab-cnt-res').innerText = rawChats.filter(c => c.restricted).length;
+        document.getElementById('tab-cnt-chan').innerText = rawChats.filter(c => c.type === 'Channel' || c.type === 'Supergroup').length;
+        document.getElementById('tab-cnt-bot').innerText = rawChats.filter(c => c.type === 'User').length;
+
+        renderDrawerChats();
+
+        // Auto-select first restricted chat if available
+        const firstRestricted = rawChats.find(c => c.restricted);
+        if (firstRestricted && !activeChat) {
+          selectChat(firstRestricted);
+        }
       } catch (e) {
-        document.getElementById('chat-list-container').innerHTML = '<div style="text-align:center; padding: 20px; color: var(--danger);">Failed to load chats</div>';
+        document.getElementById('drawer-chats-list').innerHTML = '<div style="text-align:center; padding: 20px; color: var(--text-muted);">Failed to load chats</div>';
       }
     }
 
-    function renderChatList() {
-      const container = document.getElementById('chat-list-container');
-      const search = (document.getElementById('modal-chat-search').value || '').toLowerCase();
+    function renderDrawerChats() {
+      const list = document.getElementById('drawer-chats-list');
+      const query = (document.getElementById('drawer-search-input').value || '').toLowerCase();
 
       const filtered = rawChats.filter(c => {
-        const matchSearch = c.title.toLowerCase().includes(search);
-        if (!matchSearch) return false;
+        const matchesQuery = c.title.toLowerCase().includes(query);
+        if (!matchesQuery) return false;
         if (currentFilter === 'restricted') return c.restricted;
         if (currentFilter === 'channel') return c.type === 'Channel' || c.type === 'Supergroup';
         if (currentFilter === 'bot') return c.type === 'User';
@@ -743,110 +830,106 @@
       });
 
       if (filtered.length === 0) {
-        container.innerHTML = '<div style="text-align:center; padding: 30px; color: var(--text-muted);">No chats match your filter</div>';
+        list.innerHTML = '<div style="text-align:center; padding: 30px; color: var(--text-muted);">No chats found</div>';
         return;
       }
 
-      container.innerHTML = '';
+      list.innerHTML = '';
       filtered.forEach(c => {
         const item = document.createElement('div');
-        item.className = 'chat-item';
+        item.className = 'sheet-chat-item';
         item.onclick = () => selectChat(c);
 
-        const firstLetter = (c.title || '?').charAt(0).toUpperCase();
+        const initial = (c.title || '?').charAt(0).toUpperCase();
         item.innerHTML = `
-          <div class="avatar-circle" style="width: 38px; height: 38px; font-size: 0.95rem;">${firstLetter}</div>
-          <div class="chat-item-info">
-            <div class="chat-item-title">
+          <div class="sheet-chat-avatar">${initial}</div>
+          <div style="flex:1; min-width:0;">
+            <div class="sheet-chat-title">
               <span>${c.title}</span>
               ${c.restricted ? '<span class="badge-lock">🔒 Restricted</span>' : ''}
             </div>
-            <div class="chat-item-type">${c.type}</div>
+            <div class="sheet-chat-sub">${c.type}</div>
           </div>
         `;
-        container.appendChild(item);
+        list.appendChild(item);
       });
     }
 
-    function setFilter(filterType, pillEl) {
-      currentFilter = filterType;
-      document.querySelectorAll('.filter-pills .pill').forEach(p => p.classList.remove('active'));
-      pillEl.classList.add('active');
-      renderChatList();
+    function switchFilter(type, el) {
+      currentFilter = type;
+      document.querySelectorAll('.sheet-tabs .tab-pill').forEach(p => p.classList.remove('active'));
+      el.classList.add('active');
+      renderDrawerChats();
     }
 
-    function filterChats() {
-      renderChatList();
+    function openDrawer() {
+      document.getElementById('sheet-backdrop').style.display = 'flex';
+      document.getElementById('drawer-search-input').focus();
     }
 
-    function openChatModal() {
-      document.getElementById('chat-modal').style.display = 'flex';
-      document.getElementById('modal-chat-search').focus();
+    function closeDrawer() {
+      document.getElementById('sheet-backdrop').style.display = 'none';
     }
 
-    function closeChatModal() {
-      document.getElementById('chat-modal').style.display = 'none';
-    }
-
-    function closeChatModalOnBackdrop(e) {
-      if (e.target.id === 'chat-modal') closeChatModal();
+    function onBackdropClick(e) {
+      if (e.target.id === 'sheet-backdrop') closeDrawer();
     }
 
     function selectChat(chat) {
-      currentChatId = chat.id;
-      document.getElementById('selected-avatar').innerText = (chat.title || '?').charAt(0).toUpperCase();
-      document.getElementById('selected-title').innerHTML = `${chat.title} ${chat.restricted ? '<span class="badge-lock" style="font-size:0.7rem;">🔒 Restricted</span>' : ''}`;
-      document.getElementById('selected-subtitle').innerText = `${chat.type} • ID: ${chat.id}`;
-      document.getElementById('feed-title').innerText = chat.title;
-      closeChatModal();
-      document.getElementById('messages-card').style.display = 'block';
-      reloadFromStart();
+      activeChat = chat;
+      document.getElementById('active-chat-avatar').innerText = (chat.title || '?').charAt(0).toUpperCase();
+      document.getElementById('active-chat-title').innerHTML = `${chat.title} ${chat.restricted ? '<span class="badge-lock">🔒 Restricted</span>' : ''}`;
+      document.getElementById('active-chat-sub').innerText = `${chat.type} • ID: ${chat.id}`;
+      closeDrawer();
+      document.getElementById('media-feed-wrapper').style.display = 'block';
+      reloadMediaList();
     }
 
-    async function reloadFromStart() {
+    async function reloadMediaList() {
       nextOffsetId = 0;
-      allLoadedMessages = [];
-      document.getElementById('msg-list').innerHTML = '';
-      document.getElementById('select-all-cb').checked = false;
-      updateSelectedCount();
-      await fetchMessagesBatch();
+      loadedMessages = [];
+      selectedMsgIds.clear();
+      updateDockUI();
+      document.getElementById('media-list-container').innerHTML = '';
+      await fetchNextBatch();
     }
 
-    function debounceSearch() {
+    function onSearchChanged() {
       clearTimeout(searchDebounceTimer);
       searchDebounceTimer = setTimeout(() => {
-        reloadFromStart();
-      }, 400);
+        reloadMediaList();
+      }, 350);
     }
 
-    async function fetchMessagesBatch() {
-      showToast('Fetching media list...');
-      const search = document.getElementById('search-input').value.trim();
+    async function fetchNextBatch() {
+      if (!activeChat) return;
+      showToast('Loading media files...');
+      const search = document.getElementById('media-search-input').value.trim();
       const loadBtn = document.getElementById('btn-load-more');
       loadBtn.disabled = true;
 
       try {
-        const res = await fetch(`/api/messages?chat_id=${currentChatId}&limit=50&offset_id=${nextOffsetId}&search=${encodeURIComponent(search)}`);
+        const res = await fetch(`/api/messages?chat_id=${activeChat.id}&limit=50&offset_id=${nextOffsetId}&search=${encodeURIComponent(search)}`);
         const data = await res.json();
         
         const newItems = data.messages || [];
         nextOffsetId = data.next_offset_id || 0;
-        
+
         newItems.forEach(item => {
-          if (!allLoadedMessages.some(m => m.id === item.id)) {
-            allLoadedMessages.push(item);
-            appendMessageCard(item);
+          if (!loadedMessages.some(m => m.id === item.id)) {
+            loadedMessages.push(item);
+            renderMediaCard(item);
           }
         });
 
-        document.getElementById('file-counter').innerText = allLoadedMessages.length;
-        document.getElementById('load-more-container').style.display = (data.has_more && nextOffsetId > 0) ? 'block' : 'none';
+        document.getElementById('feed-counter-label').innerText = `${loadedMessages.length} files loaded`;
+        loadBtn.style.display = (data.has_more && nextOffsetId > 0) ? 'block' : 'none';
 
-        if (allLoadedMessages.length === 0) {
-          document.getElementById('msg-list').innerHTML = '<div style="text-align:center; color: var(--text-muted); padding: 40px;">No media files found</div>';
+        if (loadedMessages.length === 0) {
+          document.getElementById('media-list-container').innerHTML = '<div style="text-align:center; padding: 40px; color: var(--text-muted);">No media files found</div>';
         }
-      } catch (err) {
-        alert('Failed to load media');
+      } catch (e) {
+        showToast('Error loading media');
       } finally {
         loadBtn.disabled = false;
         hideToast();
@@ -860,117 +943,144 @@
       return '📄';
     }
 
-    function appendMessageCard(m) {
-      const list = document.getElementById('msg-list');
-      const item = document.createElement('div');
-      item.className = 'msg-card';
-      item.id = `card-${m.id}`;
-      item.innerHTML = `
-        <input type="checkbox" class="msg-checkbox" value="${m.id}" onchange="updateSelectedCount()">
-        <div class="media-icon-box ${m.type}">${getMediaIcon(m.type)}</div>
-        <div class="msg-body">
-          <div class="msg-title" title="${m.filename}">${m.filename}</div>
-          <div class="msg-meta">
-            <span class="type-tag">${m.type.toUpperCase()}</span>
+    function renderMediaCard(m) {
+      const container = document.getElementById('media-list-container');
+      const card = document.createElement('div');
+      card.className = 'media-card';
+      card.id = `msg-card-${m.id}`;
+
+      // Tap whole card to toggle selection
+      card.onclick = (e) => {
+        if (e.target.closest('.btn-quick-send')) return;
+        toggleCardSelection(m.id);
+      };
+
+      card.innerHTML = `
+        <div class="check-circle">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        </div>
+        <div class="media-type-icon ${m.type}">${getMediaIcon(m.type)}</div>
+        <div class="media-meta-wrap">
+          <div class="media-title">${m.filename}</div>
+          <div class="media-info-row">
+            <span class="tag-badge">${m.type.toUpperCase()}</span>
             <span>${m.size}</span>
             <span>${m.date}</span>
           </div>
         </div>
-        <button class="btn btn-sm btn-accent" onclick="forwardSingle(${m.id})">
-          📤 Send
-        </button>
+        <button class="btn-quick-send" onclick="sendSingleMedia(${m.id})">Send</button>
       `;
-      list.appendChild(item);
+      container.appendChild(card);
     }
 
-    function loadMoreMessages() {
-      fetchMessagesBatch();
-    }
-
-    function toggleSelectAll(isChecked) {
-      const checkboxes = document.querySelectorAll('.msg-checkbox');
-      checkboxes.forEach(cb => cb.checked = isChecked);
-      updateSelectedCount();
-    }
-
-    function updateSelectedCount() {
-      const selected = document.querySelectorAll('.msg-checkbox:checked');
-      document.getElementById('selected-count').innerText = selected.length;
-      const btn = document.getElementById('btn-batch-send');
-      if (selected.length > 0) {
-        btn.disabled = false;
-        btn.style.opacity = '1';
-        btn.innerText = `⏩ Forward ${selected.length} to Saved`;
+    function toggleCardSelection(id) {
+      const card = document.getElementById(`msg-card-${id}`);
+      if (selectedMsgIds.has(id)) {
+        selectedMsgIds.delete(id);
+        card.classList.remove('selected');
       } else {
-        btn.disabled = true;
-        btn.style.opacity = '0.45';
-        btn.innerText = '⏩ Forward Selected to Saved';
+        selectedMsgIds.add(id);
+        card.classList.add('selected');
+      }
+      updateDockUI();
+    }
+
+    function toggleSelectAll() {
+      const allSelected = selectedMsgIds.size === loadedMessages.length;
+      loadedMessages.forEach(m => {
+        const card = document.getElementById(`msg-card-${m.id}`);
+        if (!card) return;
+        if (allSelected) {
+          selectedMsgIds.delete(m.id);
+          card.classList.remove('selected');
+        } else {
+          selectedMsgIds.add(m.id);
+          card.classList.add('selected');
+        }
+      });
+      updateDockUI();
+    }
+
+    function updateDockUI() {
+      const dock = document.getElementById('floating-dock');
+      const count = selectedMsgIds.size;
+      document.getElementById('dock-selected-num').innerText = count;
+
+      if (count > 0) {
+        dock.classList.add('visible');
+      } else {
+        dock.classList.remove('visible');
       }
     }
 
-    function showToast(text) {
-      const t = document.getElementById('status-toast');
-      document.getElementById('toast-text').innerText = text;
-      t.style.display = 'flex';
+    function loadMoreBatch() {
+      fetchNextBatch();
+    }
+
+    function showToast(text, persistent = false) {
+      const toast = document.getElementById('app-toast');
+      document.getElementById('toast-message-text').innerText = text;
+      toast.style.display = 'flex';
+      if (!persistent) {
+        setTimeout(hideToast, 2200);
+      }
     }
 
     function hideToast() {
-      document.getElementById('status-toast').style.display = 'none';
+      document.getElementById('app-toast').style.display = 'none';
     }
 
-    async function forwardSingle(msgId) {
-      showToast(`Streaming msg ${msgId} directly to Saved Messages...`);
+    async function sendSingleMedia(id) {
+      showToast(`Streaming msg ${id} directly to Saved Messages...`, true);
       try {
         const res = await fetch('/api/forward', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({
-            source_chat: currentChatId,
-            message_ids: [msgId]
+            source_chat: activeChat.id,
+            message_ids: [id]
           })
         });
-        const resData = await res.json();
-        if (resData.success) {
+        const data = await res.json();
+        if (data.success) {
           showToast('✅ Sent to Saved Messages!');
-          setTimeout(hideToast, 2000);
         } else {
-          alert('❌ Failed: ' + (resData.error || 'Unknown error'));
+          alert('Failed: ' + (data.error || 'Server error'));
           hideToast();
         }
       } catch (e) {
-        alert('Network error while forwarding');
+        alert('Network error while streaming');
         hideToast();
       }
     }
 
-    async function forwardSelected() {
-      const checked = Array.from(document.querySelectorAll('.msg-checkbox:checked')).map(cb => parseInt(cb.value));
-      if (checked.length === 0) return;
-      if (!confirm(`Stream ${checked.length} files directly to Saved Messages in RAM?`)) return;
+    async function forwardBatchSelected() {
+      const ids = Array.from(selectedMsgIds);
+      if (ids.length === 0) return;
+      if (!confirm(`Stream ${ids.length} files directly to Saved Messages?`)) return;
 
-      showToast(`Streaming ${checked.length} files to Saved Messages...`);
+      showToast(`Streaming ${ids.length} files in RAM...`, true);
       try {
         const res = await fetch('/api/forward', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({
-            source_chat: currentChatId,
-            message_ids: checked
+            source_chat: activeChat.id,
+            message_ids: ids
           })
         });
-        const resData = await res.json();
-        if (resData.success) {
-          showToast(`✅ Successfully forwarded ${resData.count} files!`);
-          document.querySelectorAll('.msg-checkbox:checked').forEach(cb => cb.checked = false);
-          document.getElementById('select-all-cb').checked = false;
-          updateSelectedCount();
-          setTimeout(hideToast, 2500);
+        const data = await res.json();
+        if (data.success) {
+          showToast(`✅ Successfully sent ${data.count} files!`);
+          selectedMsgIds.clear();
+          document.querySelectorAll('.media-card.selected').forEach(c => c.classList.remove('selected'));
+          updateDockUI();
         } else {
-          alert('❌ Failed: ' + (resData.error || 'Unknown error'));
+          alert('Failed: ' + (data.error || 'Server error'));
           hideToast();
         }
       } catch (e) {
-        alert('Network error while batch forwarding');
+        alert('Network error while streaming');
         hideToast();
       }
     }
