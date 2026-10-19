@@ -92,18 +92,41 @@ def get_filename_for_message(message) -> str:
 
 
 # ──────────────────────────────────────────────
-# Telethon Async Functions
+# Telethon Async Functions & Caching
 # ──────────────────────────────────────────────
 
+_client_ready = False
+_cached_chats = []
+_client_lock = asyncio.Lock()
+
+
 async def _init_client():
-    await client.connect()
-    if not await client.is_user_authorized():
-        return False
-    await client.get_dialogs()
-    return True
+    global _client_ready, _cached_chats
+    async with _client_lock:
+        if not client.is_connected():
+            await client.connect()
+
+        if not await client.is_user_authorized():
+            _client_ready = False
+            return False
+
+        if not _client_ready:
+            # Load dialogs ONCE to populate entity cache
+            print("📡  Populating entity cache on startup...")
+            await client.get_dialogs()
+            _client_ready = True
+            print("✅  Telegram client connected and authorized.")
+
+        return True
 
 
-async def _get_chats():
+async def _get_chats(force_refresh=False):
+    global _cached_chats
+    await _init_client()
+
+    if _cached_chats and not force_refresh:
+        return _cached_chats
+
     chats = []
     async for dialog in client.iter_dialogs():
         entity = dialog.entity
@@ -126,6 +149,8 @@ async def _get_chats():
             "type": chat_type,
             "restricted": restricted
         })
+
+    _cached_chats = chats
     return chats
 
 
