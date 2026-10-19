@@ -38,6 +38,9 @@ API_HASH = os.environ.get("TELEGRAM_API_HASH", "")
 # ── Optional bot mode ──
 BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 
+# ── Persistent String Session (keeps you logged in across restarts & on cloud/Render) ──
+STRING_SESSION = os.environ.get("TELEGRAM_STRING_SESSION", "")
+
 # Session file name (stores your login session so you don't have to re-auth)
 SESSION_NAME = "tg_downloader_session"
 

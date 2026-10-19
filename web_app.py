@@ -20,7 +20,8 @@ from telethon.tl.types import (
     DocumentAttributeVideo,
 )
 
-from config import API_ID, API_HASH, SESSION_NAME
+from telethon.sessions import StringSession
+from config import API_ID, API_HASH, SESSION_NAME, STRING_SESSION
 from fast_telethon import fast_upload
 
 # Configure Windows console
@@ -31,7 +32,8 @@ app = Flask(__name__)
 
 # Global async event loop and Telethon client in a dedicated worker thread
 loop = asyncio.new_event_loop()
-client = TelegramClient(SESSION_NAME, API_ID, API_HASH, loop=loop)
+session_target = StringSession(STRING_SESSION) if STRING_SESSION else SESSION_NAME
+client = TelegramClient(session_target, API_ID, API_HASH, loop=loop)
 
 
 def start_loop():
